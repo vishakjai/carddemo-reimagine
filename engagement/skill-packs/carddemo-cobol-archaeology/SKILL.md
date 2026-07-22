@@ -1,7 +1,7 @@
 ---
 name: carddemo-cobol-archaeology
 description: Evidence-first comprehension of AWS CardDemo COBOL, JCL, VSAM, copybooks, CICS maps, EBCDIC datasets, paragraph control flow, and COBOL decimal semantics.
-skill_version: 1.0.0
+skill_version: 1.1.0
 maintainer: vishakjai
 legacy_skill_id: carddemo_cobol_modernization
 legacy_skill_name: CardDemo COBOL Modernization
@@ -52,6 +52,8 @@ legacy_skill_archetypes:
     description: "COBOL batch estate orchestrated by JCL over fixed-length and VSAM datasets."
     confidence: 0.99
     match_all_extensions: [".cbl", ".cpy", ".jcl"]
+legacy_skill_inventory_extractors:
+  - "cobol_source_analysis"
 legacy_skill_scanner_ignore_paths:
   - ".git"
   - "target"
