@@ -53,7 +53,7 @@ Migration order (dependency-driven):
 | 4 | CBCUS01C | Customer file read/print | |
 | 5 | CBTRN01C | Daily transaction pre-check | Xref lookups, reject handling |
 | 6 | CBTRN02C | Transaction posting | **HIGH RISK**: balance arithmetic, reject file, category balance updates |
-| 7 | CBACT04C | Interest calculation | **HIGHEST RISK**: fixed-scale decimal arithmetic, rate lookup with DEFAULT fallback, monthly interest = balance × rate / 1200, and a receiving field assignment without `ROUNDED` |
+| 7 | CBACT04C | Interest calculation | **HIGHEST RISK**: signed display-numeric receiving-field truncation (**not COMP-3 in this program**), rate lookup with DEFAULT fallback, monthly interest = balance × rate / 1200, and assignment without `ROUNDED` |
 | 8 | CBTRN03C | Transaction detail report | Control-break logic, page totals |
 | 9 | CBSTM03A/B | Statement generation (calls 03B as subprogram) | Inter-program linkage, 2 output formats |
 | 10 | CBEXPORT / CBIMPORT | Data export/import | Encoding-sensitive |
