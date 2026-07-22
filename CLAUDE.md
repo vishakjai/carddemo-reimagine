@@ -14,9 +14,9 @@
 ```
 /legacy/                  READ-ONLY. Never modify anything under this path.
   cbl/                    31 COBOL programs (CB* = batch, CO* = CICS online, CS* = utility)
-  cpy/                    41 copybooks (record layouts — the data dictionary of the system)
-  cpy-bms/                Symbolic map copybooks for CICS screens
-  jcl/                    47 JCL jobs (batch orchestration — defines job step sequence & datasets)
+  cpy/                    30 data copybooks (record layouts — the data dictionary of the system)
+  cpy-bms/                17 symbolic map copybooks for CICS screens
+  jcl/                    38 JCL jobs (batch orchestration — defines job step sequence & datasets)
   proc/  ctl/  catlg/     Procedures, control cards, catalog definitions
   bms/  csd/              CICS screen maps and resource definitions (OUT OF SCOPE Phase 1)
   data/ASCII/             Sample datasets, ASCII-converted
@@ -53,7 +53,7 @@ Migration order (dependency-driven):
 | 4 | CBCUS01C | Customer file read/print | |
 | 5 | CBTRN01C | Daily transaction pre-check | Xref lookups, reject handling |
 | 6 | CBTRN02C | Transaction posting | **HIGH RISK**: balance arithmetic, reject file, category balance updates |
-| 7 | CBACT04C | Interest calculation | **HIGHEST RISK**: COMP-3 arithmetic, rate lookup w/ DEFAULT fallback, monthly interest = balance × rate / 1200, ROUNDED clauses |
+| 7 | CBACT04C | Interest calculation | **HIGHEST RISK**: fixed-scale decimal arithmetic, rate lookup with DEFAULT fallback, monthly interest = balance × rate / 1200, and a receiving field assignment without `ROUNDED` |
 | 8 | CBTRN03C | Transaction detail report | Control-break logic, page totals |
 | 9 | CBSTM03A/B | Statement generation (calls 03B as subprogram) | Inter-program linkage, 2 output formats |
 | 10 | CBEXPORT / CBIMPORT | Data export/import | Encoding-sensitive |
@@ -103,10 +103,10 @@ A program is **DONE** only when all are true:
 ## 4. COBOL semantic trap catalog — verify explicitly for EVERY program
 These are the classes of silent behavioral drift this engagement exists to catch. For each program, produce a checklist in its BEL folder confirming each class was inspected, with line references.
 
-### 4.1 Decimal arithmetic (COMP-3 / packed decimal)
+### 4.1 Decimal arithmetic (including COMP-3 / packed decimal)
 - COBOL `COMPUTE` **without** `ROUNDED` truncates toward zero at the target field's scale. `BigDecimal` default thinking (HALF_UP) is WRONG there → use `RoundingMode.DOWN` at the receiving field's scale. `COMPUTE ... ROUNDED` = HALF_UP.
 - Intermediate result precision: COBOL intermediate results follow IBM's rules (effectively high-precision), then truncate/round only on the final MOVE to the receiver. Do not round intermediates in Java.
-- CBACT04C's monthly interest (`balance × rate / 1200`) is the flagship case — capture penny-level expected values in the oracle across the full account file and assert the **file total**, not just per-record values, so drift accumulation is visible.
+- CBACT04C's monthly interest (`balance × rate / 1200`) is the flagship case — capture penny-level expected values in the oracle across the full account file and assert the **file total**, not just per-record values, so drift accumulation is visible. Its relevant fields are signed display numerics with implied decimals, not `COMP-3`; the risk comes from receiving-field scale and the absence of `ROUNDED`. Do not mislabel this specific finding as packed-decimal behavior.
 
 ### 4.2 MOVE truncation & padding
 - Numeric MOVE to a smaller PIC silently truncates **high-order digits**. Alphanumeric MOVE truncates right and pads with spaces. Reproduce exactly; add characterization scenarios that trigger them where reachable.

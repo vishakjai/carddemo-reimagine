@@ -10,7 +10,7 @@ class: TARGET-DEFECT | LEGACY-QUIRK-PRESERVED | ORACLE-GAP | OPEN-DIVERGENCE
 trap_category: decimal-arithmetic | move-truncation | sign-handling | collation-encoding | control-flow | file-status | date-handling | other
 legacy_evidence:
   source: legacy/cbl/CBACT04C.cbl
-  lines: "310-327"
+  lines: "462-467"
   behavior: "COMPUTE without ROUNDED truncates monthly interest toward zero at scale 2"
 target_evidence:
   source: target/carddemo-batch/src/.../InterestCalcProcessor.java

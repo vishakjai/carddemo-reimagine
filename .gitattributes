@@ -1,0 +1,2 @@
+# Frozen mainframe datasets are byte evidence, never text-normalized by Git.
+legacy/data/EBCDIC/** binary
